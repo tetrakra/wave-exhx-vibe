@@ -5,16 +5,18 @@ const path = require('path');
 
 const app = express();
 const PORT = 8998;
-require('./routes')(app);
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
-app.use(express.static(path.join(__dirname, '../public/')));
 
-let todos = [
-    { id: 1, task: 'Learn HTMX' },
-    { id: 2, task: 'Feed Cat' },
-];
+app.use(express.static(path.join(__dirname, 'public')));
+// app.set('views', path.join(__dirname, '../public/views'));
 
-module.exports = todos;
+app.locals.title = 'exhxvibes'
+app.locals.strftime = require('strftime');
+
+
+app.listen(PORT, () => {
+    console.log(`server ${app.locals.title} is running on port ${PORT}`)
+})
