@@ -8,15 +8,16 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 
+
 router
     .use(function timeLog(req, res, next) {
         console.log('Time: ', Date.now());
         next();
     })
-    //binding
+    // binding
     .get('/', function (req,res){
         //render view;
-        res.render('index', { title: 'Route Separation Example', body: JSON.stringify(req) });
+        res.render('index', { title: 'Route Separation Example', body: req });
     })
     .get('/api/todos', function(req, res) {
         try {
@@ -59,4 +60,7 @@ router
         } catch (error) {
             console.error('failed to delete ( ´･･)ﾉ(._.`) ', error);
         }
-    })
+    });
+
+module.exports = router;
+

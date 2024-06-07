@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const routes = require('./routes.js');
 
 const app = express();
 const PORT = 8998;
@@ -11,7 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 
 app.use(express.static(path.join(__dirname, 'public')));
-// app.set('views', path.join(__dirname, '../public/views'));
+app.use('/', routes);
 
 app.locals.title = 'exhxvibes'
 app.locals.strftime = require('strftime');
