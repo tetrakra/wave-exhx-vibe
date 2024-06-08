@@ -15,10 +15,10 @@ router
         next();
     })
     // binding
-    .get('/', function (req,res){
-        //render view;
-        res.render('index', { title: 'Route Separation Example', body: req });
-    })
+    // .get('/', function (req,res){
+    //     //render view;
+    //     res.render('index', { title: 'Route Separation Example', body: req });
+    // })
     .get('/api/todos', function(req, res) {
         try {
             res.status(200).json(todos)

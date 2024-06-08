@@ -1,0 +1,1 @@
+document.writeln("<p>express static serve test</p>")
