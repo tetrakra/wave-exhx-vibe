@@ -31,20 +31,22 @@ var accessLogStream = fs.createWriteStream(path.join(__dirname,'access.log'), {f
 app.use(logger('combined', {stream: accessLogStream}));
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.use('/', routes);
-//catch missing route
+app.use('/api', routes);
+
+
 
 //default route
-app.get('/', (req, res) => {
+app.get((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, '404.hmtl'));
-})
 
 app.listen(app.get('port'), app.get('host'), ()=>{
     console.log(`server listening on port ${app.get('port')} \n @ ${app.get('host')} \n`);
 });
 
 
+//fallback (use method doesnt work?)
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname,'../public/','404.html'));
+})
