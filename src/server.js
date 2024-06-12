@@ -31,7 +31,7 @@ var accessLogStream = fs.createWriteStream(path.join(__dirname,'access.log'), {f
 app.use(logger('combined', {stream: accessLogStream}));
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.use('/api', routes);
+app.use('/', routes);
 
 
 
@@ -46,7 +46,7 @@ app.listen(app.get('port'), app.get('host'), ()=>{
 });
 
 
-//fallback (use method doesnt work?)
+//fallback 
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname,'../public/','404.html'));
 })
