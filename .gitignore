@@ -9,6 +9,8 @@ test/scratch/scratch.html
 *.gz
 node_modules
 package-lock.json
+/public/asset/*
+/public/ftp/*
 
 # Coveralls
 .nyc_output

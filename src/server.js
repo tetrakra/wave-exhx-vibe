@@ -3,26 +3,48 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const routes = require('./routes.js');
-
+const logger = require('morgan');
 const app = express();
-const PORT = 8998;
+const fs = require('fs');
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 
-app.use(express.static(path.resolve(__dirname, '../public/')));
-app.use('/', routes);
 
 app.locals.title = 'exhxvibes'
 app.locals.strftime = require('strftime');
 
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-  });
-  
+app.set('port', process.env.PORT || 8998);
+app.set('host', process.env.HOST || '0.0.0.0');
 
-app.listen(PORT, () => {
-    console.log(`server ${app.locals.title} is running on port ${PORT}`)
+
+//request middleware
+app.use(function(req,res,next){
+  console.log("Request IP: " + req.url);
+  console.log("Request date: " + new Date());
+  next();
+});
+  
+var accessLogStream = fs.createWriteStream(path.join(__dirname,'access.log'), {flags:'a'});
+app.use(logger('combined', {stream: accessLogStream}));
+app.use(express.static(path.join(__dirname, '../public')));
+
+app.use('/', routes);
+//catch missing route
+
+//default route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, '404.hmtl'));
 })
+
+app.listen(app.get('port'), app.get('host'), ()=>{
+    console.log(`server listening on port ${app.get('port')} \n @ ${app.get('host')} \n`);
+});
+
+
