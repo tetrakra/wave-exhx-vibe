@@ -26,6 +26,20 @@ router
             console.error('cant get', error);
         }
     })
+    .get('/api/todos/:id', function(req, res) {
+        try {
+            const id = parseInt(req.params.id);
+            const todo = todos.find(t => t.id === id);
+
+            if(!todo){
+                res.status(404).send('NOT FOUND! (┬┬﹏┬┬)');
+                return;
+            }
+            res.status(200).json(todo)
+        } catch (error) {
+            console.error('cant get', error);
+        }
+    })
     .post('/api/todos', (req, res) => {
         try {
             const newTodo = { id: todos.length + 1, task: req.body.task };
@@ -35,7 +49,7 @@ router
             console.error('Failed to create todo', error);
         }
     })
-    .put('api/todos/:id', (req,res) => {
+    .put('/api/todos/:id', (req,res) => {
         try {
             const id = parseInt(req.params.id);
             const todo = todos.find(t => t.id === id);
