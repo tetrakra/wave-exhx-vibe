@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
-const routes = require('./routes.js');
+const apiRoutes = require('./api-routes.js');
 const logger = require('morgan');
 const app = express();
 const fs = require('fs');
@@ -31,7 +31,7 @@ var accessLogStream = fs.createWriteStream(path.join(__dirname,'access.log'), {f
 app.use(logger('combined', {stream: accessLogStream}));
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.use('/', routes);
+app.use('/api', apiRoutes);
 
 
 

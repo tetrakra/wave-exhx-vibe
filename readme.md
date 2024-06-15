@@ -5,3 +5,9 @@
 - htmx
 ## Experimental HTMX setup
 *i hope this isnt a colossal waste of time*
+
+### Ongoing
+node http server *needs https?*
+Async file operations *promisify!*
+ftp *needs sftp*
+basic front end *replace bootstrap and jquery*

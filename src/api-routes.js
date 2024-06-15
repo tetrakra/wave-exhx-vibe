@@ -1,32 +1,37 @@
-//test data
-let todos = [
-    { id: 1, task: 'Eat Bees' },
-    { id: 2, task: 'Go Back in Time' },
-];
 
 const express = require('express');
 const router = express.Router();
+const DataToucher = require('./test-data.js')
+const dataPath = '../public/asset/testData.json' || process.env.testData;
 
-
+//instantiate class that interacts with files
+let todoData = new DataToucher(dataPath);
+//replace this manual read with something automatic;
+//todoData.readTodos();
+//this is also temporary
+let todos = null;
 
 router
     .use(function timeLog(req, res, next) {
         console.log('Time: ', Date.now());
         next();
     })
-    // binding
-    // .get('/', function (req,res){
-    //     //render view;
-    //     res.render('index', { title: 'Route Separation Example', body: req });
+    // .get('/todos', function(req, res) {
+    //     try {
+    //         res.status(200).json(todos)
+    //     } catch (error) {
+    //         console.error('cant get', error);
+    //     }
     // })
-    .get('/api/todos', function(req, res) {
-        try {
-            res.status(200).json(todos)
-        } catch (error) {
-            console.error('cant get', error);
+    .get('/todos', async (req,res) => {
+        try{
+            todos = await todoData.todos
+            res.status(200).json(todos);
+        } catch (error){
+            console.error("can't get ", error)
         }
     })
-    .get('/api/todos/:id', function(req, res) {
+    .get('/todos/:id', function(req, res) {
         try {
             const id = parseInt(req.params.id);
             const todo = todos.find(t => t.id === id);
@@ -49,7 +54,7 @@ router
             console.error('Failed to create todo', error);
         }
     })
-    .put('/api/todos/:id', (req,res) => {
+    .put('/todos/:id', (req,res) => {
         try {
             const id = parseInt(req.params.id);
             const todo = todos.find(t => t.id === id);
@@ -65,7 +70,7 @@ router
             console.error('failed to make edit ', error);
         }
     })
-    .delete('/api/todos/:id', (req,res) => {
+    .delete('/todos/:id', (req,res) => {
         try{
             const id = parseInt(req.params.id);
             todos = todos.filter(t => t.id !== id);
