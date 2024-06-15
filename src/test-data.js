@@ -1,21 +1,17 @@
-// Importing the fs module
-const fs = require('fs');
-// Importing util module
-const util = require('util');
-// Both of these will allow promise-ified node file operations?
+// Importing the fs module with promises
+const fs = require('node:fs/promises');
 const path = require('path');
 
 class DataToucher{
     #todos;
     constructor(myPath){
         this.path = path.join(__dirname, myPath);
-        this.readFile = util.promisify(fs.readFile);
-        this.saveFile = util.promisify(fs.writeFile);
+
         this.#todos = null;
         this.readTodos();
     }
     
-    readTodos(){
+    XXXreadTodos(){
         this.readFile(this.path, 'utf-8')
         .then((data) => {
             console.log(`reading file now ${JSON.stringify(data)}`);
@@ -28,16 +24,26 @@ class DataToucher{
        
     }
 
-    saveTodos(newData){
-        this.saveFile(this.path, JSON.stringify(newData), 'utf-8')
-        .then((data) => {
-            console.log(`writing file now ${JSON.stringify(data)}`);
+    async readTodos(){
+        try {
+            let data = await fs.readFile(this.path, {encoding: 'utf-8'});
             this.#todos = JSON.parse(data);
-        })
-        .catch((err) => {
-            console.warn('error in writing file');
+        } catch(err){
             console.error(err);
-        })
+        }
+    }
+
+    async saveTodos(newData){
+        //this.saveFile(this.path, JSON.stringify(newData), 'utf-8')
+        console.log(`new data recieved to save: ${JSON.stringify(newData)}`)
+        try{
+            let data = await fs.writeFile(this.path, JSON.stringify(newData),{encoding: 'utf-8'});
+            this.#todos = JSON.parse(data);
+        }
+        catch(err){
+            console.error(err);
+        }
+            
     }
 
     set todos(newData){

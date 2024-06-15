@@ -16,13 +16,6 @@ router
         console.log('Time: ', Date.now());
         next();
     })
-    // .get('/todos', function(req, res) {
-    //     try {
-    //         res.status(200).json(todos)
-    //     } catch (error) {
-    //         console.error('cant get', error);
-    //     }
-    // })
     .get('/todos', async (req,res) => {
         try{
             todos = await todoData.todos
@@ -45,16 +38,19 @@ router
             console.error('cant get', error);
         }
     })
-    .post('/api/todos', (req, res) => {
+    .post('/todos', async (req, res) => {
+        const newTodo = { id: todos.length + 1, task: req.body.task };
         try {
-            const newTodo = { id: todos.length + 1, task: req.body.task };
             todos.push(newTodo);
-            res.status(201).json(newTodo);
-        } catch (error) {
+            todos = await todoData.saveTodos(todos);
+        }catch (error) {
             console.error('Failed to create todo', error);
+        }finally {
+            res.status(201).json(newTodo);
         }
+
     })
-    .put('/todos/:id', (req,res) => {
+    .put('/todos/:id', async (req,res) => {
         try {
             const id = parseInt(req.params.id);
             const todo = todos.find(t => t.id === id);
@@ -65,17 +61,20 @@ router
             }
             console.log('task ' + req.body.task);
             todo.task = req.body.task;
-            res.status(200).json(todo);
         } catch (error) {
             console.error('failed to make edit ', error);
+        } finally {
+            todos = await todoData.saveTodos(todos);
+            res.status(200).json(todo);
         }
     })
-    .delete('/todos/:id', (req,res) => {
+    .delete('/todos/:id', async (req,res) => {
         try{
             const id = parseInt(req.params.id);
             todos = todos.filter(t => t.id !== id);
-
             res.status(204).send();
+            console.log(`trying to delete ${JSON.stringify(todos)}`)
+            todos = await todoData.saveTodos(todos);
         } catch (error) {
             console.error('failed to delete ( ´･･)ﾉ(._.`) ', error);
         }
