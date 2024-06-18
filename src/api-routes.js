@@ -69,14 +69,16 @@ router
         }
     })
     .delete('/todos/:id', async (req,res) => {
+        console.log(`trying to delete ${JSON.stringify(todos[req.params.id])}`)
         try{
             const id = parseInt(req.params.id);
             todos = todos.filter(t => t.id !== id);
-            res.status(204).send();
-            console.log(`trying to delete ${JSON.stringify(todos)}`)
-            todos = await todoData.saveTodos(todos);
+            
         } catch (error) {
             console.error('failed to delete ( ´･･)ﾉ(._.`) ', error);
+        } finally {
+            todos = await todoData.saveTodos(todos);
+            res.status(204).send();
         }
     });
 

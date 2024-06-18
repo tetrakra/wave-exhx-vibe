@@ -11,7 +11,7 @@ class DataToucher{
         this.readTodos();
     }
     
-    XXXreadTodos(){
+    _readTodos(){
         this.readFile(this.path, 'utf-8')
         .then((data) => {
             console.log(`reading file now ${JSON.stringify(data)}`);
@@ -37,13 +37,14 @@ class DataToucher{
         //this.saveFile(this.path, JSON.stringify(newData), 'utf-8')
         console.log(`new data recieved to save: ${JSON.stringify(newData)}`)
         try{
-            let data = await fs.writeFile(this.path, JSON.stringify(newData),{encoding: 'utf-8'});
-            this.#todos = JSON.parse(data);
+            await fs.writeFile(this.path, `${JSON.stringify(newData)}`,{encoding: 'utf-8'});
+            this.#todos = newData;
+            return this.#todos;
         }
         catch(err){
             console.error(err);
         }
-            
+       
     }
 
     set todos(newData){
