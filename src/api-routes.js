@@ -6,8 +6,6 @@ const dataPath = '../public/asset/testData.json' || process.env.testData;
 
 //instantiate class that interacts with files
 let todoData = new DataToucher(dataPath);
-//replace this manual read with something automatic;
-//todoData.readTodos();
 //this is also temporary
 let todos = null;
 

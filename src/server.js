@@ -2,10 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
-const apiRoutes = require('./api-routes.js');
 const logger = require('morgan');
-const app = express();
 const fs = require('fs');
+
+const apiRoutes = require('./api-routes.js');
+
+const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -29,7 +31,7 @@ app.use(function(req,res,next){
   
 var accessLogStream = fs.createWriteStream(path.join(__dirname,'access.log'), {flags:'a'});
 app.use(logger('combined', {stream: accessLogStream}));
-app.use(express.static(path.join(__dirname, '../public')));
+
 
 app.use('/api', apiRoutes);
 
@@ -39,7 +41,12 @@ app.use('/api', apiRoutes);
 app.get((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
+app.use(express.static(path.join(__dirname, '../public')));
 
+//todo front end
+app.get('/todos',(req, res) => {
+  res.sendFile(path.join(__dirname, '../public','views','todos.html'));
+});
 
 app.listen(app.get('port'), app.get('host'), ()=>{
     console.log(`server listening on port ${app.get('port')} \n @ ${app.get('host')} \n`);
