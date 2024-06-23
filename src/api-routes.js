@@ -2,12 +2,20 @@
 const express = require('express');
 const router = express.Router();
 const DataToucher = require('./test-data.js')
+const WaveVibes = require('./waves-data.js');
 const dataPath = '../public/asset/testData.json' || process.env.testData;
 
 //instantiate class that interacts with files
 let todoData = new DataToucher(dataPath);
 //this is also temporary
 let todos = null;
+
+
+//instantiate class that creates waves and blocks
+const blockManager = new WaveVibes.BlockManager();
+const blockController = new WaveVibes.BlockController(blockManager);
+
+blockController.setupRoutes(router);
 
 router
     .use(function timeLog(req, res, next) {
