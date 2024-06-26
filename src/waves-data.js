@@ -48,8 +48,9 @@ class Block {
     }
 
     getBlocks(){
-      console.log(`blocks??? ${this.blocks}`)
-      return [...this.blocks];
+      console.log(`blocks??? ${[...this.blocks]}`)
+      const _blocks = [...this.blocks].map(([type, name]) => ({type, name}));
+      return _blocks;
     }
   
     removeBlock(id) {
@@ -125,8 +126,8 @@ class Block {
           const wave = block.getWaveData();
           res.write(`data: ${wave}\n\n`);
         } else {
-          const waves = blocks.array.forEach(wave => {
-            res.write(`data: ${wave}\n\n`);
+            blocks.array.forEach(wave => {
+              res.write(`data: ${wave}\n\n`);
             return;
           });
         }
