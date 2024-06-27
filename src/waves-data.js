@@ -48,7 +48,6 @@ class Block {
     }
 
     getBlocks(){
-      console.log(`blocks??? ${[...this.blocks]}`)
       const _blocks = [...this.blocks.values()];
       return _blocks;
     }
@@ -67,7 +66,7 @@ class Block {
       //make block
       app.post('/create-block', this.createBlock.bind(this));
       // start wave for block of param: ID #
-      app.post('/start-wave-stream/:id', this.startWaveStream.bind(this));
+      app.post('/wave-stream/:id', this.startWaveStream.bind(this));
       //get wave for block of param: ID #
       app.get('/wave-stream/:id', this.waveStream.bind(this));
       app.get('/blocks-data', this.getAllBlocks.bind(this));
@@ -81,7 +80,7 @@ class Block {
     }
 
     startWaveStream(req, res) {
-      const block = this.blockManager.getBlock(req.params.id);
+      const block = this.blockManager.getBlock(`block${req.params.id}`);
       if (!block) {
         return res.status(404).send('Block not found');
       }
@@ -116,17 +115,17 @@ class Block {
     }
 
     getBlock(req,res){
-      let block = this.blockManager.getBlock(req.params.id);
+      let block = this.blockManager.getBlock(`block${req.params.id}`);
       if (!block) {
         return res.status(404).send('Block not found ' + req.params.id);
       }
 
-      res.json(block.values())
+      res.json(block)
     }
     
 
     waveStream(req, res) {
-      let block = this.blockManager.getBlock(req.params.id);
+      let block = this.blockManager.getBlock(`block${req.params.id}`);
       
       if (!block) {
         return res.status(404).send('Block not found ' + req.params.id);
