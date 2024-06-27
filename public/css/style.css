@@ -616,16 +616,16 @@ video {
   margin-top: 1.25rem;
 }
 
+.\!block {
+  display: block !important;
+}
+
 .block {
   display: block;
 }
 
 .table {
   display: table;
-}
-
-.rounded-lg {
-  border-radius: 0.5rem;
 }
 
 .text-lg {
@@ -692,13 +692,5 @@ video {
 
   .md\:flex {
     display: flex;
-  }
-
-  .md\:w-56 {
-    width: 14rem;
-  }
-
-  .md\:flex-shrink-0 {
-    flex-shrink: 0;
   }
 }

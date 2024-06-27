@@ -7,7 +7,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "tailwind:css": "postcss public/css/tailwind.css -o public/css/style.css",
-    "dev2": "node --watch src/server.js && npx tailwindcss -i public/css/tailwind.css -o public/css/style.css --watch"
+    "dev2": "node --watch src/server.js & npx tailwindcss -i public/css/tailwind.css -o public/css/style.css --watch"
   },
   "dependencies": {
     "autoprefixer": "^10.4.19",

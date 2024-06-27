@@ -49,7 +49,7 @@ class Block {
 
     getBlocks(){
       console.log(`blocks??? ${[...this.blocks]}`)
-      const _blocks = [...this.blocks].map(([type, name]) => ({type, name}));
+      const _blocks = [...this.blocks.values()];
       return _blocks;
     }
   
@@ -64,10 +64,14 @@ class Block {
     }
   
     setupRoutes(app) {
+      //make block
       app.post('/create-block', this.createBlock.bind(this));
-      app.get('/wave-stream-:id', this.waveStream.bind(this));
-      app.get('/wave-streams', this.waveStream.bind(this));
+      // start wave for block of param: ID #
       app.post('/start-wave-stream/:id', this.startWaveStream.bind(this));
+      //get wave for block of param: ID #
+      app.get('/wave-stream/:id', this.waveStream.bind(this));
+      app.get('/blocks-data', this.getAllBlocks.bind(this));
+      app.get('/block-data/:id', this.getBlock.bind(this));
     }
   
     createBlock(req, res) {
@@ -99,19 +103,32 @@ class Block {
         clearInterval(intervalId);
       });
     }
-  
-    waveStream(req, res) {
-      let multi = false;
-      let block = null;
-      let blocks = null;
-      if (!req.params.id){
-         blocks = this.blockManager.getBlocks();
-        multi = true;
-      } else {
-         block = this.blockManager.getBlock(req.params.id);
+
+    getAllBlocks(req, res){
+      const blocks = this.blockManager.getBlocks();
+      const blocksData = blocks.map(block => ({
+        id: block.id,
+        interval: block.interval,
+        modifier: block.modifier,
+        color: block.color
+      }));
+      res.json(blocksData);
+    }
+
+    getBlock(req,res){
+      let block = this.blockManager.getBlock(req.params.id);
+      if (!block) {
+        return res.status(404).send('Block not found ' + req.params.id);
       }
+
+      res.json(block.values())
+    }
+    
+
+    waveStream(req, res) {
+      let block = this.blockManager.getBlock(req.params.id);
       
-      if (!block && !blocks) {
+      if (!block) {
         return res.status(404).send('Block not found ' + req.params.id);
       }
   
@@ -122,27 +139,19 @@ class Block {
       });
       
       const sendWave = () => {
-        if(!multi){
-          const wave = block.getWaveData();
-          res.write(`data: ${wave}\n\n`);
-        } else {
-            blocks.array.forEach(wave => {
-              res.write(`data: ${wave}\n\n`);
-            return;
-          });
-        }
-   
-      };
       
+        const wave = block.getWaveData();
+        res.write(`data: ${wave}\n\n`);
+        
+      };
+
       const intervalId = multi ? 0 : setInterval(sendWave, block.interval);
   
       req.on('close', () => {
-       
-        if (!multi){
-          clearInterval(intervalId);
-          this.blockManager.removeBlock(block.id);
-        }
-       
+      
+        clearInterval(intervalId);
+        this.blockManager.removeBlock(block.id);
+        
       });
     }
   };
