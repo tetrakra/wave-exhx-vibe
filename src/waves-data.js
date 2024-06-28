@@ -1,25 +1,48 @@
 //crud and routing for our wave blocks
 class Block {
-    constructor(id, interval, modifier) {
+    constructor(id, interval, modifier, x, y) {
       this.id = id;
       this.interval = interval;
       this.modifier = modifier;
       this.color = this.randomColor();
+      this.initialX = x;
+      this.initialY = y;
+      this.currentX = x;
+      this.currentY = y;
     }
   
     randomColor() {
       const hue = Math.floor(Math.random() * 360);
       return `hsl(${hue}, 100%, 50%)`;
     }
+
+    getTimeData() {
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - this.creationTime;
+      return elapsedTime * this.modifier;
+    }
+  
+    updatePosition(x, y) {
+      this.currentX = x;
+      this.currentY = y;
+    }
+  
+    getDistance() {
+      const dx = this.currentX - this.initialX;
+      const dy = this.currentY - this.initialY;
+      return Math.sqrt(dx*dx + dy*dy);
+    }
   
     toHTML() {
       return `
         <div id="${this.id}" 
              class="block" 
-             style="background-color: ${this.color};"
-             hx-sse="connect:/wave-stream-${this.id}"
-             hx-trigger="sse:message"
-             hx-swap="none">
+             style="background-color: ${this.color}; left: ${this.initialX}px; top: ${this.initialY}px;"
+             data-initial-x="${this.initialX}"
+             data-initial-y="${this.initialY}"
+             sse-connect="/time-stream/${this.id}"
+             sse-swap="message">
+          <span class="distance">Distance: 0</span>
         </div>
       `;
     }
@@ -35,10 +58,10 @@ class Block {
       this.blockCount = 0;
     }
   
-    createBlock(interval, modifier) {
+    createBlock(interval, modifier, x, y) {
       this.blockCount++;
       const id = `block${this.blockCount}`;
-      const newBlock = new Block(id, interval, modifier);
+      const newBlock = new Block(id, interval, modifier, x, y);
       this.blocks.set(id, newBlock);
       return newBlock;
     }
@@ -74,8 +97,9 @@ class Block {
     }
   
     createBlock(req, res) {
-      const { interval, modifier } = req.body;
-      const newBlock = this.blockManager.createBlock(interval, modifier);
+      const { interval, modifier, x, y } = req.body;
+      console.log(`create block with ${JSON.stringify(req.body)}`);
+      const newBlock = this.blockManager.createBlock(interval, modifier, x, y);
       res.send(newBlock.toHTML());
     }
 
@@ -109,7 +133,11 @@ class Block {
         id: block.id,
         interval: block.interval,
         modifier: block.modifier,
-        color: block.color
+        color: block.color, 
+        initialX: block.initialX,
+        initialY: block.initialY,
+        currentX: block.initialX,
+        currentY: block.currentY
       }));
       res.json(blocksData);
     }
