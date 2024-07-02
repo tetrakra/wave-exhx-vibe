@@ -9,6 +9,7 @@ class Block {
       this.initialY = y;
       this.currentX = x;
       this.currentY = y;
+      this.creationTime = Date.now();
     }
   
     randomColor() {
@@ -18,7 +19,7 @@ class Block {
 
     getTimeData() {
       const currentTime = Date.now();
-      const elapsedTime = currentTime - this.creationTime;
+      let elapsedTime = currentTime - this.creationTime;
       return elapsedTime * this.modifier;
     }
   
@@ -48,7 +49,8 @@ class Block {
     }
   
     getWaveData() {
-      return Date.now() * this.modifier;
+    
+      return Date.now() * (this.modifier);
     }
   }
   
@@ -172,7 +174,7 @@ class Block {
         
       };
 
-      const intervalId = multi ? 0 : setInterval(sendWave, block.interval);
+      const intervalId = setInterval(sendWave, block.interval);
   
       req.on('close', () => {
       
