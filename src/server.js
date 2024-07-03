@@ -48,6 +48,11 @@ app.get('/todos',(req, res) => {
   res.sendFile(path.join(__dirname, '../public','views','todos.html'));
 });
 
+//wave vibes front end
+app.get('/waves',(req, res) => {
+  res.sendFile(path.join(__dirname, '../public','views','waves.html'));
+});
+
 app.listen(app.get('port'), app.get('host'), ()=>{
     console.log(`server listening on port ${app.get('port')} \n @ ${app.get('host')} \n`);
 });

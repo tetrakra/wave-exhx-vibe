@@ -1,4 +1,5 @@
 //crud and routing for our wave blocks
+//all requests must include */api/req*
 class Block {
     constructor(id, interval, modifier, x, y) {
       this.id = id;
@@ -44,6 +45,7 @@ class Block {
              sse-connect="/time-stream/${this.id}"
              sse-swap="message">
           <span class="distance">Distance: 0</span>
+          <span class="time">Time: 0</span>
         </div>
       `;
     }
