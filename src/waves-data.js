@@ -52,7 +52,7 @@ class Block {
   
     getWaveData() {
     
-      return Date.now() * (this.modifier);
+      return this.creationTime;
     }
   }
   
@@ -92,10 +92,13 @@ class Block {
     setupRoutes(app) {
       //make block
       app.post('/create-block', this.createBlock.bind(this));
-      // start wave for block of param: ID #
-      app.post('/wave-stream/:id', this.startWaveStream.bind(this));
+     
       //get wave for block of param: ID #
       app.get('/wave-stream/:id', this.waveStream.bind(this));
+       // start wave for block of param: ID # (DEPRECATE?)
+       //app.post('/wave-stream/:id', this.startWaveStream.bind(this));
+
+      //get blocks data
       app.get('/blocks-data', this.getAllBlocks.bind(this));
       app.get('/block-data/:id', this.getBlock.bind(this));
     }
@@ -107,29 +110,6 @@ class Block {
       res.send(newBlock.toHTML());
     }
 
-    startWaveStream(req, res) {
-      const block = this.blockManager.getBlock(`block${req.params.id}`);
-      if (!block) {
-        return res.status(404).send('Block not found');
-      }
-  
-      res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-      });
-      
-      const sendTime = () => {
-        const time = block.getTimeData();
-        res.write(`data: ${time}\n\n`);
-      };
-  
-      const intervalId = setInterval(sendTime, block.interval);
-  
-      req.on('close', () => {
-        clearInterval(intervalId);
-      });
-    }
 
     getAllBlocks(req, res){
       const blocks = this.blockManager.getBlocks();
@@ -170,9 +150,9 @@ class Block {
       });
       
       const sendWave = () => {
-      
+        const time = block.getTimeData();
         const wave = block.getWaveData();
-        res.write(`data: ${wave}\n\n`);
+        res.write(`data: ${wave}\n time: ${time}\n`);
         
       };
 
