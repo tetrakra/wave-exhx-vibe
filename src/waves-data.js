@@ -42,7 +42,7 @@ class Block {
              style="background-color: ${this.color}; left: ${this.initialX}px; top: ${this.initialY}px;"
              data-initial-x="${this.initialX}"
              data-initial-y="${this.initialY}"
-             sse-connect="/time-stream/${this.id}"
+             sse-connect="/api/wave-stream/${this.id}"
              sse-swap="message">
           <span class="distance">Distance: 0</span>
           <span class="time">Time: 0</span>
@@ -71,7 +71,12 @@ class Block {
     }
   
     getBlock(id) {
-      return this.blocks.get(id);
+      if (typeof value !== 'number'){
+        return this.blocks.get(`block${id}`);
+      } else {
+        return this.blocks.get(id);
+      }
+     
     }
 
     getBlocks(){
@@ -127,8 +132,9 @@ class Block {
     }
 
     getBlock(req,res){
-      let block = this.blockManager.getBlock(`block${req.params.id}`);
+      let block = this.blockManager.getBlock(`${req.params.id}`);
       if (!block) {
+        
         return res.status(404).send('Block not found ' + req.params.id);
       }
 
@@ -136,12 +142,13 @@ class Block {
     }
     
 
-    waveStream(req, res) {
-      let block = this.blockManager.getBlock(`block${req.params.id}`);
-      
-      if (!block) {
+    waveStream(req, res) {  
+      let block = this.blockManager.getBlock(req.params.id);
+
+      if (!block ) {
         return res.status(404).send('Block not found ' + req.params.id);
       }
+   
   
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',

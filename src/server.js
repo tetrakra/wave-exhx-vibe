@@ -22,10 +22,27 @@ app.set('port', process.env.PORT || 8998);
 app.set('host', process.env.HOST || '0.0.0.0');
 
 
-//request middleware
-app.use(function(req,res,next){
+// Custom Morgan token for remote address
+logger.token('remote-addr', function (req) {
+  return req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+});
+
+
+
+
+// Custom Morgan format middleware
+app.use(logger(':remote-addr - :method :url :status :res[content-length] - :response-time ms'));
+let connections = 0;
+// Middleware to count connections
+app.use((req, res, next) => {
   console.log("Request IP: " + req.url);
   console.log("Request date: " + new Date());
+  connections++;
+  console.log(`Total connections: ${connections}`);
+  res.on('finish', () => {
+    connections--;
+    console.log(`Total connections: ${connections}`);
+  });
   next();
 });
   

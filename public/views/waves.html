@@ -50,10 +50,11 @@
                 const distanceSpan = blockElement.querySelector('.distance');
                 const timeSpan = blockElement.querySelector('.time');
                 // Start the wave stream
-                htmx.ajax('POST', `/api/wave-stream/${blockId.replace('block', '')}`, {});
+                htmx.ajax('GET', `/api/wave-stream/${blockId.replace('block', '')}`, {});
 
                 // Update the block's position and distance
                 htmx.on('sse:message', function(event) {
+                    debug.log(`htmx got message ${event.detail.message}`)
                     const time = parseFloat(event.detail.message);
                     const initialX = parseFloat(blockElement.dataset.initialX);
                     const initialY = parseFloat(blockElement.dataset.initialY);
