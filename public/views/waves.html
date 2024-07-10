@@ -9,6 +9,7 @@
     <title>HTMX CRUD</title>
 
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+    <script src="https://unpkg.com/htmx-ext-sse@2.2.0/sse.js"></script>
     <script src="https://unpkg.com/htmx-ext-client-side-templates@2.0.0/client-side-templates.js"></script>
 
 
@@ -42,34 +43,59 @@
     </div>
 
     <script>
+        const container = document.getElementById("blocks-container")
+    
+    
+            container.addEventListener('htmx:afterSettle', function(event) {
+    
+            let blocks = document.querySelectorAll('.block');
+                if (!blocks){
+                    console.Error('NO BLOCKS?')
+                    throw new Error('NOPE NO NO NO');
+                }
+                blocks.forEach((block) => {
+                    block.addEventListener("click", function(evt){
 
-        document.body.addEventListener('htmx:afterSettle', function(event) {
-            if (event.detail.elt.classList.contains('block')) {
-                const blockId = event.detail.elt.id;
-                const blockElement = document.getElementById(blockId);
-                const distanceSpan = blockElement.querySelector('.distance');
-                const timeSpan = blockElement.querySelector('.time');
-                // Start the wave stream
-                htmx.ajax('GET', `/api/wave-stream/${blockId.replace('block', '')}`, {});
+                    console.log(`did we catch any of that? ${JSON.stringify(block)}`);
+                    const blockId = block.id;
+                    const blockElement = document.getElementById(blockId);
+                    const distanceSpan = blockElement.querySelector('.distance');
+                    const timeSpan = blockElement.querySelector('.time');
 
-                // Update the block's position and distance
-                htmx.on('sse:message', function(event) {
-                    debug.log(`htmx got message ${event.detail.message}`)
-                    const time = parseFloat(event.detail.message);
-                    const initialX = parseFloat(blockElement.dataset.initialX);
-                    const initialY = parseFloat(blockElement.dataset.initialY);
-                    const newX = initialX + Math.sin(time / 1000) * 50;
-                    const newY = initialY + Math.cos(time / 1000) * 50;
                     
-                    blockElement.style.transform = `translate(${newX - initialX}px, ${newY - initialY}px)`;
-                    
-                    const dx = newX - initialX;
-                    const dy = newY - initialY;
-                    const distance = Math.sqrt(dx*dx + dy*dy).toFixed(2);
-                    distanceSpan.textContent = `Distance: ${distance}`;
-                    timeSpan.textContent = `Time: ${time.toFixed(2)}`;
+                    // Start the wave stream but with fetch now   
+                    fetch(`/api/wave-stream/${block.id.replace('block', '')}`, {
+                        method: 'GET'
+                    }).then(res => {
+                        if (!res.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        console.log('Wave stream started successfully');
+                    })
+                    // Update the block's position and distance
+                    htmx.on('sse:message', function(evt) {
+                        debug.log(`htmx got message ${evt.detail.message}`)
+                        const time = parseFloat(evt.detail.message);
+                        const initialX = parseFloat(blockElement.dataset.initialX);
+                        const initialY = parseFloat(blockElement.dataset.initialY);
+                        const newX = initialX + Math.sin(time / 1000) * 50;
+                        const newY = initialY + Math.cos(time / 1000) * 50;
+                        
+                        blockElement.style.transform = `translate(${newX - initialX}px, ${newY - initialY}px)`;
+                        
+                        const dx = newX - initialX;
+                        const dy = newY - initialY;
+                        const distance = Math.sqrt(dx*dx + dy*dy).toFixed(2);
+                        distanceSpan.textContent = `Distance: ${distance}`;
+                        timeSpan.textContent = `Time: ${time.toFixed(2)}`;
+                    });
+
+
                 });
-            }
+                    
+
+            });
+
         });
     </script>
 </body>

@@ -42,7 +42,7 @@ class Block {
              style="background-color: ${this.color}; left: ${this.initialX}px; top: ${this.initialY}px;"
              data-initial-x="${this.initialX}"
              data-initial-y="${this.initialY}"
-             sse-connect="/api/wave-stream/${this.id}"
+             sse-connect="/api/wave-stream/${this.id.replace("block","")}"
              sse-swap="message">
           <span class="distance">Distance: 0</span>
           <span class="time">Time: 0</span>
