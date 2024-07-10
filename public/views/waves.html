@@ -45,37 +45,56 @@
     <script>
         const container = document.getElementById("blocks-container")
     
-    
-            container.addEventListener('htmx:afterSettle', function(event) {
-    
-            let blocks = document.querySelectorAll('.block');
-                if (!blocks){
-                    console.Error('NO BLOCKS?')
-                    throw new Error('NOPE NO NO NO');
-                }
-                blocks.forEach((block) => {
-                    block.addEventListener("click", function(evt){
 
-                    console.log(`did we catch any of that? ${JSON.stringify(block)}`);
-                    const blockId = block.id;
-                    const blockElement = document.getElementById(blockId);
-                    const distanceSpan = blockElement.querySelector('.distance');
-                    const timeSpan = blockElement.querySelector('.time');
+        container.addEventListener('htmx:afterSettle', function(event) {
 
-                    
-                    // Start the wave stream but with fetch now   
-                    fetch(`/api/wave-stream/${block.id.replace('block', '')}`, {
-                        method: 'GET'
-                    }).then(res => {
-                        if (!res.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        console.log('Wave stream started successfully');
-                    })
-                    // Update the block's position and distance
-                    htmx.on('sse:message', function(evt) {
-                        debug.log(`htmx got message ${evt.detail.message}`)
-                        const time = parseFloat(evt.detail.message);
+        let blocks = document.querySelectorAll('.block');
+            if (!blocks.length){
+                console.Error('NO BLOCKS?')
+                throw new Error('NOPE NO NO NO');
+            }
+            blocks.forEach((block) => {
+                //click is temporary while after settle wont fire on this other dom change
+                block.addEventListener("click", function(evt){
+
+                console.log(`did we catch any of that? ${JSON.stringify(block)}`);
+                const blockId = block.id;
+                const blockElement = document.getElementById(blockId);
+                const distanceSpan = blockElement.querySelector('.distance');
+                const timeSpan = blockElement.querySelector('.time');
+
+                
+                // Start the wave stream but with fetch now   
+                fetch(`/api/wave-stream/${block.id.replace('block', '')}`, {
+                    method: 'GET'
+                }).then(res => {
+                    if (!res.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Set up SSE connection
+                    console.log('Setting up SSE connection');
+
+                    const eventSource = new EventSource(`/api/wave-stream/${blockId.replace('block', '')}`);
+
+                    // Check SSE connection
+                    eventSource.onopen = (ev) => {
+                        console.log('SSE connection opened:', ev);
+                    };
+
+                    eventSource.onerror = (err) => { 
+                        console.error('EventSource error:', err);
+                        eventSource.close();
+                    }
+
+                    // Test for message
+                    eventSource.onmessage = (ev) => {
+                        console.log(`recieved evt ${ev}\n${ev.message}\n${ev.detail}\n`)
+                    };
+
+                        // Update the block's position and distance
+                    eventSource.addEventListener('wave', (evt) => {
+                        console.log(`htmx got message ${evt.data}`)
+                        const time = parseFloat(evt.data);
                         const initialX = parseFloat(blockElement.dataset.initialX);
                         const initialY = parseFloat(blockElement.dataset.initialY);
                         const newX = initialX + Math.sin(time / 1000) * 50;
@@ -89,14 +108,17 @@
                         distanceSpan.textContent = `Distance: ${distance}`;
                         timeSpan.textContent = `Time: ${time.toFixed(2)}`;
                     });
-
-
-                });
                     
+                    
+                        
+           
+                });
 
             });
-
         });
+    });
+        
+        
     </script>
 </body>
 

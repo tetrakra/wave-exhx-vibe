@@ -43,6 +43,9 @@ app.use((req, res, next) => {
     connections--;
     console.log(`Total connections: ${connections}`);
   });
+  res.on('close', () => {
+    console.log('close');
+  });
   next();
 });
   

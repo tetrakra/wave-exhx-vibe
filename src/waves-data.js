@@ -1,5 +1,6 @@
 //crud and routing for our wave blocks
 //all requests must include */api/req*
+const cors = require('cors');
 class Block {
     constructor(id, interval, modifier, x, y) {
       this.id = id;
@@ -42,8 +43,8 @@ class Block {
              style="background-color: ${this.color}; left: ${this.initialX}px; top: ${this.initialY}px;"
              data-initial-x="${this.initialX}"
              data-initial-y="${this.initialY}"
-             sse-connect="/api/wave-stream/${this.id.replace("block","")}"
-             sse-swap="message">
+             hx-sse="connect:/api/wave-stream/${this.id}"
+             sse-swap="wave">
           <span class="distance">Distance: 0</span>
           <span class="time">Time: 0</span>
         </div>
@@ -71,12 +72,14 @@ class Block {
     }
   
     getBlock(id) {
-      if (typeof value !== 'number'){
-        return this.blocks.get(`block${id}`);
-      } else {
-        return this.blocks.get(id);
-      }
-     
+      // if (typeof value !== 'number'){
+      //   console.log('getting html block');
+      //   return this.blocks.get(`block${id}`);
+      // } else {
+      //   console.log('api block get');
+      //   return this.blocks.get(id);
+      // }
+      return this.blocks.get(id);
     }
 
     getBlocks(){
@@ -95,6 +98,7 @@ class Block {
     }
   
     setupRoutes(app) {
+      app.use(cors());
       //make block
       app.post('/create-block', this.createBlock.bind(this));
      
@@ -105,7 +109,7 @@ class Block {
 
       //get blocks data
       app.get('/blocks-data', this.getAllBlocks.bind(this));
-      app.get('/block-data/:id', this.getBlock.bind(this));
+      app.get('/block-data/:id', this.getABlock.bind(this));
     }
   
     createBlock(req, res) {
@@ -131,7 +135,7 @@ class Block {
       res.json(blocksData);
     }
 
-    getBlock(req,res){
+    getABlock(req,res){
       let block = this.blockManager.getBlock(`${req.params.id}`);
       if (!block) {
         
@@ -143,8 +147,7 @@ class Block {
     
 
     waveStream(req, res) {  
-      let block = this.blockManager.getBlock(req.params.id);
-
+      let block = this.blockManager.getBlock(`block${req.params.id}`);
       if (!block ) {
         return res.status(404).send('Block not found ' + req.params.id);
       }
@@ -159,9 +162,11 @@ class Block {
       const sendWave = () => {
         const time = block.getTimeData();
         const wave = block.getWaveData();
-        res.write(`data: ${wave}\n time: ${time}\n`);
-        
+        console.log(`Sent wave data: ${wave} for block ${req.params.id}`);
+        res.write(`event: wave\ndata: ${time}\n`);
       };
+
+      sendWave();
 
       const intervalId = setInterval(sendWave, block.interval);
   
