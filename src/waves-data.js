@@ -43,6 +43,7 @@ class Block {
              style="background-color: ${this.color}; left: ${this.initialX}px; top: ${this.initialY}px;"
              data-initial-x="${this.initialX}"
              data-initial-y="${this.initialY}"
+             data-modifier="${this.modifier}"
              hx-sse="connect:/api/wave-stream/${this.id}"
              sse-swap="wave">
           <span class="distance">Distance: 0</span>
@@ -98,7 +99,11 @@ class Block {
     }
   
     setupRoutes(app) {
-      app.use(cors());
+      app.use(cors({
+        origin: '*',
+        methods: ['GET','POST'],
+        allowedHeaders: ['Content-Type'],
+      }));
       //make block
       app.post('/create-block', this.createBlock.bind(this));
      
@@ -162,8 +167,9 @@ class Block {
       const sendWave = () => {
         const time = block.getTimeData();
         const wave = block.getWaveData();
-        console.log(`Sent wave data: ${wave} for block ${req.params.id}`);
-        res.write(`event: wave\ndata: ${time}\n`);
+        const data = `data: ${time}\nwave: ${wave}\n`
+        //console.log(`Sent wave data: ${wave} for block ${req.params.id}`);
+        res.write(`event: wave\n${data}\n`);
       };
 
       sendWave();

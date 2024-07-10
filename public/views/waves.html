@@ -47,30 +47,24 @@
     
 
         container.addEventListener('htmx:afterSettle', function(event) {
-
+        console.log(`what is this event... ${(event.detail)}`)
         let blocks = document.querySelectorAll('.block');
             if (!blocks.length){
-                console.Error('NO BLOCKS?')
-                throw new Error('NOPE NO NO NO');
+                console.warn('NO BLOCKS')
             }
             blocks.forEach((block) => {
                 //click is temporary while after settle wont fire on this other dom change
-                block.addEventListener("click", function(evt){
-
-                console.log(`did we catch any of that? ${JSON.stringify(block)}`);
-                const blockId = block.id;
-                const blockElement = document.getElementById(blockId);
-                const distanceSpan = blockElement.querySelector('.distance');
-                const timeSpan = blockElement.querySelector('.time');
+                // block.addEventListener("click", function(evt){
+                // changed this to a timeout because htmx events dont apply to these
+                setTimeout(() => {
+                    console.log(`block? ${JSON.stringify(block)}`);
+                    const blockId = block.id;
+                    const blockElement = document.getElementById(blockId);
+                    const distanceSpan = blockElement.querySelector('.distance');
+                    const timeSpan = blockElement.querySelector('.time');
 
                 
-                // Start the wave stream but with fetch now   
-                fetch(`/api/wave-stream/${block.id.replace('block', '')}`, {
-                    method: 'GET'
-                }).then(res => {
-                    if (!res.ok) {
-                        throw new Error('Network response was not ok');
-                    }
+            
                     // Set up SSE connection
                     console.log('Setting up SSE connection');
 
@@ -92,8 +86,8 @@
                     };
 
                         // Update the block's position and distance
-                    eventSource.addEventListener('wave', (evt) => {
-                        console.log(`htmx got message ${evt.data}`)
+                        eventSource.addEventListener('wave', (evt) => {
+                        console.log(`htmx got message ${JSON.stringify(evt,null,2)}`)
                         const time = parseFloat(evt.data);
                         const initialX = parseFloat(blockElement.dataset.initialX);
                         const initialY = parseFloat(blockElement.dataset.initialY);
@@ -107,16 +101,12 @@
                         const distance = Math.sqrt(dx*dx + dy*dy).toFixed(2);
                         distanceSpan.textContent = `Distance: ${distance}`;
                         timeSpan.textContent = `Time: ${time.toFixed(2)}`;
-                    });
-                    
-                    
-                        
-           
+                    });  
                 });
-
-            });
+            },1000)
         });
-    });
+        
+    
         
         
     </script>
