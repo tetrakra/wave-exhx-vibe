@@ -7,9 +7,12 @@
 @layer components {
     .night{
         background-color: #555;
-        }
-        #landing{
+    }
+    #landing{
         margin: 3rem;
         color: #eee;
-        }
+    }
+    body{
+        background-color: #777;
+    }
 }

@@ -168,7 +168,7 @@ class Block {
         const time = block.getTimeData();
         const wave = block.getWaveData();
         const data = `data: ${time}\nwave: ${wave}\n`
-        //console.log(`Sent wave data: ${wave} for block ${req.params.id}`);
+        console.log(`Sent wave data: ${wave} for block ${req.params.id}`);
         res.write(`event: wave\n${data}\n`);
       };
 

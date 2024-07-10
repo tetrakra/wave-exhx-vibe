@@ -37,7 +37,7 @@
             </form>
         </div>
 
-        <div id="blocks-container" class="space-y-4">
+        <div id="blocks-container" class="space-y-4 rounded-lg px-6 py-8 ring-1 ring-slate-900/5 shadow-xl flex flex-wrap mb-4 w-full h-full">
             <!-- Blocks will be inserted here -->
         </div>
     </div>
@@ -95,6 +95,8 @@
                         const newY = initialY + Math.cos(time / 1000) * 50;
                         
                         blockElement.style.transform = `translate(${newX - initialX}px, ${newY - initialY}px)`;
+                        blockElement.style.padding = `2rem`;
+                        blockElement.style.maxHeight = `6rem`;
                         
                         const dx = newX - initialX;
                         const dy = newY - initialY;
